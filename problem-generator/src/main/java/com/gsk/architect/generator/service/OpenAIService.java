@@ -31,7 +31,7 @@ public class OpenAIService {
 
         try {
             return service.createChatCompletion(chatCompletionRequest)
-                    .getChoices().get(0).getMessage().getContent();
+                    .getChoices().getFirst().getMessage().getContent();
         } catch (Exception e) {
             log.error("Error generating response from OpenAI", e);
             throw new RuntimeException("Failed to generate response", e);

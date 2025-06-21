@@ -28,7 +28,6 @@ public class ProblemGeneratorApp {
             System.out.println("Invalid domain. Available domains: ECOMMERCE, VIDEO_STREAMING, APPLE, GENERIC");
         } catch (Exception e) {
             System.out.println("Error generating question: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 }
