@@ -1,73 +1,128 @@
 # Architect Lab
 
-A Java-based application for generating software architecture problems and exercises using different language models.
+A Java-based application for generating software architecture problems and exercises using different language models (OpenAI or Llama).
 
-## Project Structure
+## Prerequisites
 
-The project consists of two main modules:
-- `problem-generator`: Core module that generates architectural problems using language models
-- `lab-solutions`: Module for storing solutions to the generated problems
-
-## Problem Generator
-
-The problem generator module uses language models (OpenAI or Llama) to create software architecture problems across different domains.
-
-### Supported Domains
-- E-commerce
-- Video Streaming
-- Apple (Apple-style system design)
-- Generic
-
-### Supported Language Models
-- OpenAI (using OpenAI API)
-- Llama (using local Llama model)
-
-## Setup
-
-1. Ensure you have Java installed on your system
-2. Clone the repository
-3. Build the project using Maven:
-   ```bash
-   mvn clean install
-   ```
-
-## Usage
-
-Run the problem generator with the following command:
-
-```bash
-java -jar problem-generator/target/problem-generator-1.0-SNAPSHOT.jar <MODEL_TYPE> <CONFIG> <DOMAIN>
-```
-
-### Parameters:
-- `MODEL_TYPE`: Choose between `OPENAI` or `LLAMA`
-- `CONFIG`: 
-  - For OpenAI: Provide your OpenAI API key
-  - For Llama: Provide the path to your Llama model file
-- `DOMAIN`: Choose from `ECOMMERCE`, `VIDEO_STREAMING`, `APPLE`, or `GENERIC`
-
-### Example:
-```bash
-# Using OpenAI
-java -jar problem-generator/target/problem-generator-1.0-SNAPSHOT.jar OPENAI sk-your-api-key ECOMMERCE
-
-# Using Llama
-java -jar problem-generator/target/problem-generator-1.0-SNAPSHOT.jar LLAMA /path/to/llama/model GENERIC
-```
-
-## Building from Source
-
-1. Ensure you have Maven installed
-2. Clone the repository
-3. Navigate to the project root
-4. Run:
-   ```bash
-   mvn clean install
-   ```
-
-## Requirements
-
-- Java 8 or higher
+- Java 8 or higher (64-bit JDK required)
 - Maven 3.6 or higher
-- For OpenAI model: Valid OpenAI API key
-- For Llama model: Local Llama model file
+- For OpenAI: Valid API key
+- For Llama:
+  - CMake 3.12 or higher
+  - A C++ compiler (Clang on macOS)
+  - llama.cpp library (build instructions below)
+  - GGUF format model file
+
+## Setup Instructions
+
+### Installing Build Tools
+
+1. Install Homebrew (if not already installed):
+   ```bash
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   ```
+
+2. Install required tools:
+   ```bash
+   brew install cmake
+   xcode-select --install  # Install Clang and developer tools
+   ```
+
+### Setting up Llama
+
+1. Create the required directories:
+   ```bash
+   mkdir -p ~/llama-models/.llama/lib
+   ```
+
+2. Build llama.cpp (CPU version):
+   ```bash
+   cd ~/llama-models
+   git clone https://github.com/ggerganov/llama.cpp.git
+   cd llama.cpp
+   mkdir build && cd build
+   cmake -DBUILD_SHARED_LIBS=ON -DLLAMA_METAL=OFF ..
+   make
+   cp libllama.dylib ~/llama-models/.llama/lib/
+   ```
+
+3. Download a GGUF model file and place it in the `~/llama-models` directory
+
+## Building the Application
+
+```bash
+git clone <repository-url>
+cd architect-lab
+mvn clean package
+```
+
+## Running the Application
+
+### Using OpenAI
+
+```bash
+java -jar problem-generator/target/problem-generator-1.0-SNAPSHOT.jar OPENAI sk-your-api-key GENERIC
+```
+
+### Using Llama
+
+```bash
+LLAMA_METAL=0 java -Xmx4g -jar problem-generator/target/problem-generator-1.0-SNAPSHOT.jar LLAMA ~/llama-models/your-model.gguf GENERIC
+```
+
+### Parameters
+- MODEL_TYPE: `OPENAI` or `LLAMA`
+- CONFIG: 
+  - For OpenAI: Your API key
+  - For Llama: Path to your GGUF model file
+- DOMAIN: `ECOMMERCE`, `VIDEO_STREAMING`, `APPLE`, or `GENERIC`
+
+## Memory Requirements
+
+Memory requirements depend on the model size:
+- 1.7B model: 4GB minimum (-Xmx4g)
+- 7B model: 8GB minimum (-Xmx8g)
+- 13B model: 16GB minimum (-Xmx16g)
+- 30B+ models: 32GB minimum (-Xmx32g)
+
+## Known Issues and Troubleshooting
+
+### Metal (GPU) Support
+- Metal support is currently disabled due to stability issues
+- Use CPU-only mode by setting `LLAMA_METAL=0`
+
+### Common Issues
+
+1. "Library not found" error:
+   - Ensure libllama.dylib is in `~/llama-models/.llama/lib/`
+   - Rebuild the library following the setup instructions
+
+2. Segmentation fault during model loading:
+   - Verify you're using the correct memory settings for your model size
+   - Ensure you're using `LLAMA_METAL=0` environment variable
+   - Try using a smaller model for testing
+
+3. Model loading errors:
+   - Verify the model file is in GGUF format
+   - Check file permissions and paths
+   - Ensure sufficient memory is allocated
+
+## Domains
+
+The application supports generating architecture problems in the following domains:
+
+- **ECOMMERCE**: E-commerce platform design problems
+- **VIDEO_STREAMING**: Video streaming service architecture
+- **APPLE**: Apple-style system design questions
+- **GENERIC**: General distributed systems design problems
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## License
+
+[Specify your license here]
