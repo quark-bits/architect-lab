@@ -5,11 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class QuestionGeneratorService {
-    private final OpenAIService openAIService;
+    private final LanguageModelService languageModel;
     private final FileGeneratorService fileGeneratorService;
 
-    public QuestionGeneratorService(OpenAIService openAIService, FileGeneratorService fileGeneratorService) {
-        this.openAIService = openAIService;
+    public QuestionGeneratorService(LanguageModelService languageModel, FileGeneratorService fileGeneratorService) {
+        this.languageModel = languageModel;
         this.fileGeneratorService = fileGeneratorService;
     }
 
@@ -39,11 +39,11 @@ public class QuestionGeneratorService {
 
         // Generate the main question
         String questionPrompt = String.format(QUESTION_PROMPT_TEMPLATE, domain.getDescription());
-        String questionContent = openAIService.generateResponse(questionPrompt);
+        String questionContent = languageModel.generateResponse(questionPrompt);
 
         // Generate hints
         String hintsPrompt = String.format(HINTS_PROMPT_TEMPLATE, questionContent);
-        String hintsContent = openAIService.generateResponse(hintsPrompt);
+        String hintsContent = languageModel.generateResponse(hintsPrompt);
 
         // Generate sanitized package name from the first line of the question
         String packageName = generatePackageName(questionContent);

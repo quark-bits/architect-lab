@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-public class OpenAIService {
+public class OpenAIService implements LanguageModelService {
     private final OpenAiService service;
     private static final String MODEL = "gpt-4";
 
